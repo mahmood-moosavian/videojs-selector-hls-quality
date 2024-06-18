@@ -123,20 +123,38 @@ class QualitySelectorHlsClass {
     const levelItems = [];
 
     for (let i = 0; i < levels.length; ++i) {
-      const {width, height} = levels[i];
-      const pixels = width > height ? height : width;
+      const {width, height, bitrate} = levels[i];
+      let pixels,bitrate_;
+      if(width && height) {
+        pixels = width > height ? height : width;
+      }
+      else if(bitrate) {
+        bitrate_ = bitrate;
+      }
 
       if (!pixels) {
         continue;
       }
 
+      if (!bitrate_) {
+        continue;
+      }
+
       if (!levelItems.filter(_existingItem => {
-        return _existingItem.item && _existingItem.item.value === pixels;
+        return _existingItem.item && (_existingItem.item.value === pixels || _existingItem.item.value === bitrate_);
       }).length) {
-        const levelItem = this.getQualityMenuItem.call(this, {
-          label: pixels + 'p',
-          value: pixels
-        });
+        let levelItem;
+        if(pixels){
+          levelItem = this.getQualityMenuItem.call(this, {
+            label: pixels + 'p',
+            value: pixels
+          });
+        }else{
+          levelItem = this.getQualityMenuItem.call(this, {
+            label: bitrate_/1000 + 'Kbps',
+            value: bitrate_
+          });
+        }
 
         levelItems.push(levelItem);
       }
